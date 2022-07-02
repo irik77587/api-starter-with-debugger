@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!--link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/styles/default.min.css"-->
+<style>
+:root {
+  --endpoint-height: 3em;
+}
+@media only screen and (min-width: 600px) {
+	body {
+		margin: 0;
+	}
+	div.data-body {
+	  height: inherit;
+	  grid-template-columns: auto auto;
+	}
+}
+@media only screen and (min-width: 442px) {
+	div.endpoint {
+	  height: var(--endpoint-height);
+	  grid-template-columns: 6em auto 6em;
+	}
+}
+div.main {
+  margin: 1em;
+/*  outline: red solid; */
+  height: calc(100% - var(--endpoint-height));
+}
+div.grid-container {
+  display: grid;
+}
+div.data-body > div {
+/*   outline: green solid; */
+}
+textarea {
+  width: 100%;
+  resize: vertical;
+  box-sizing: border-box;
+}
+</style>
+</head>
+<body>
+<div class="main">
+  <div class="endpoint grid-container">
+    <select name="method" id="">
+      <option value="get">get</option>
+      <option value="post">post</option>
+      <option value="put">put</option>
+      <option value="patch">patch</option>
+      <option value="delete">delete</option>
+    </select>
+    <input type="text" id="url">
+    <button>Send</button>
+  </div>
+  <div class="data-body grid-container">
+    <div>
+      <p>Request body</p>
+      <textarea name="request" cols="30" rows="10"></textarea>
+    </div>
+    <div>
+      <p>Response body</p>
+      <textarea name="response" cols="30" rows="10" disabled=""></textarea>
+    </div>
+  </div>
+</div>
+<script type="module">
+//import hljs from 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/es/highlight.min.js';
+const url = document.querySelector("input#url"),
+	send_button = document.querySelector("div.endpoint>button"),
+	method = document.querySelector("select[name=method]"),
+	resbody = document.querySelector("textarea[name=response]"),
+	reqbody = document.querySelector("textarea[name=request]");
+send_button.addEventListener("click", () => {
+	console.debug(`url : ${url.value}\nMethod : ${method.value}\nBody : ${reqbody.value}`);
+	//resbody.textContent = "text response";
+	// Setting value does not set textContent but
+	// setting textContent does set value
+	if(["GET", "get"].includes(method.value)) fetch(url.value).then(x => x.text()).then(write_response);
+	else fetch(url.value,{method: method.value, body: reqbody.value}).then(x => x.text()).then(write_response);
+});
+function write_response(text) {
+	try {
+		const json_data = JSON.stringify(JSON.parse(text), null, '  ');
+		resbody.value = json_data;
+		//const highlightedCode = hljs.highlight(json_data, {language: 'json'}).value;
+		//resbody.value = highlightedCode;
+	} catch (error) {
+		resbody.value = text;
+	}
+}
+</script>
+</body>
+</html>
